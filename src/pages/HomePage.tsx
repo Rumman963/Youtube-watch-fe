@@ -1,18 +1,32 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { WatchIcon } from "../icons/WatchIcon";
 
 export function HomePage() {
+  const [isWiggling, setIsWiggling] = useState(false);
+
+  function handleIconClick() {
+    setIsWiggling(true);
+    setTimeout(() => setIsWiggling(false), 400);
+  }
+
   return (
     <div className="relative h-screen w-full bg-neutral-950 text-white flex flex-col items-center justify-center px-6 overflow-hidden">
-      {/* Subtle red glow behind the content so the page doesn't
-          feel like empty black space on larger screens */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-[600px] h-[600px] bg-red-600/10 rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-md w-full text-center">
         <div className="flex justify-center mb-6">
-          <WatchIcon className="w-16 h-16" />
+          <button
+            onClick={handleIconClick}
+            className={
+              "cursor-pointer animate-glow-pulse " +
+              (isWiggling ? "animate-wiggle" : "")
+            }
+          >
+            <WatchIcon className="w-16 h-16" />
+          </button>
         </div>
 
         <h1 className="text-4xl font-bold mb-4 leading-tight">

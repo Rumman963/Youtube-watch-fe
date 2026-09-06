@@ -2,12 +2,19 @@ import { useState, type SyntheticEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { API_BASE_URL } from "../config";
+import { WatchIcon } from "../icons/WatchIcon";
 
 export function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isWiggling, setIsWiggling] = useState(false);
   const navigate = useNavigate();
+
+  function handleIconClick() {
+    setIsWiggling(true);
+    setTimeout(() => setIsWiggling(false), 400);
+  }
 
   async function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
@@ -23,15 +30,12 @@ export function SignIn() {
         password: password,
       });
 
-      console.log(response.data); 
+      console.log(response.data);
 
-     
       localStorage.setItem("token", response.data.token);
-
       localStorage.setItem("username", username);
 
       navigate("/join");
-
     } catch (err: any) {
       if (err.response) {
         setError(err.response.data.message);
@@ -44,6 +48,16 @@ export function SignIn() {
   return (
     <div className="h-screen w-full bg-neutral-950 text-white flex items-center justify-center px-6">
       <form onSubmit={handleSubmit} className="w-full max-w-sm">
+        <div className="flex justify-center mb-6">
+          <button
+            type="button"
+            onClick={handleIconClick}
+            className={"cursor-pointer " + (isWiggling ? "animate-wiggle" : "")}
+          >
+            <WatchIcon className="w-12 h-12" />
+          </button>
+        </div>
+
         <h1 className="text-2xl font-bold mb-6 text-center">Sign In</h1>
 
         <input
