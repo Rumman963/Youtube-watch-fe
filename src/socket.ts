@@ -10,3 +10,10 @@ export function connectSocket(token: string) {
 export function getSocket() {
   return socket;
 }
+
+export function closeSocket() {
+  if (socket) {
+    socket.close();
+    socket = null;
+  }
+}
