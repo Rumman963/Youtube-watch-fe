@@ -1,6 +1,7 @@
 import { useEffect, useState, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { connectSocket, getSocket } from "../socket";
+import { closeSocket } from "../socket";
 
 export function JoinRoom() {
   const [roomCode, setRoomCode] = useState("");
@@ -102,8 +103,20 @@ export function JoinRoom() {
     );
   }
 
+  function handleLogout() {
+  closeSocket();
+  localStorage.removeItem("token");
+  localStorage.removeItem("username");
+  navigate("/signin");
+}
+
   return (
     <div className="h-screen w-full bg-neutral-950 text-white flex flex-col items-center justify-center px-6">
+      <button
+    onClick={handleLogout}
+    className="absolute top-6 right-6 text-sm text-neutral-400 hover:text-white">
+      Logout
+      </button>
       <h1 className="text-2xl font-bold mb-6">Join a watch party</h1>
 
       {!connected && <p className="text-neutral-400 mb-4">Connecting...</p>}
@@ -136,6 +149,7 @@ export function JoinRoom() {
       </form>
 
       {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+
     </div>
   );
 }
