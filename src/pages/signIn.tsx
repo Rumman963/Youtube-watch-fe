@@ -54,7 +54,7 @@ export function SignIn() {
             onClick={handleIconClick}
             className={"cursor-pointer " + (isWiggling ? "animate-wiggle" : "")}
           >
-            <WatchIcon className="w-12 h-12" />
+            <WatchIcon />
           </button>
         </div>
 
