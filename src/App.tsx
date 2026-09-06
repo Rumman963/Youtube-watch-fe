@@ -18,10 +18,7 @@ function App () {
         <Route path='/join' element={<JoinRoom/>} />
         <Route path='/room/:roomId' element={<RoomDashboard/>} />
 
-    
   </Routes>
-  
-  
   </BrowserRouter>
   
 }
