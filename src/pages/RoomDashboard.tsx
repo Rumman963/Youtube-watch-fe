@@ -231,6 +231,14 @@ function sendChangeVideo() {
     );
   }
 
+  function handleLeaveRoom() {
+  const socket = getSocket();
+  if (socket) {
+    socket.send(JSON.stringify({ event: "leave_room", payload: {} }));
+  }
+  navigate("/join");
+}
+
   const canControlPlayback = myRole === "host" || myRole === "moderator";
   const isHost = myRole === "host";
 
@@ -241,6 +249,11 @@ function sendChangeVideo() {
         <span className="text-sm px-3 py-1 rounded-full bg-green-900 text-green-400">
           {playState === "playing" ? "Playing" : "Paused"}
         </span>
+        <button
+      onClick={handleLeaveRoom}
+      className="text-sm px-3 py-1 rounded-lg border border-neutral-700 hover:border-neutral-500">
+      Leave room
+      </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
