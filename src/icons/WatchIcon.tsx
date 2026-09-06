@@ -3,9 +3,7 @@ export function WatchIcon(){
 
     return <div>
 
-        <svg
-  width="100"
-  height="100"
+        <svg className="w-25 h-15"
   viewBox="0 0 220 140"
   fill="none"
   xmlns="http://www.w3.org/2000/svg"

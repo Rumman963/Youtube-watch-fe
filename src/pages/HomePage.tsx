@@ -25,7 +25,7 @@ export function HomePage() {
               (isWiggling ? "animate-wiggle" : "")
             }
           >
-            <WatchIcon className="w-16 h-16" />
+            <WatchIcon />
           </button>
         </div>
 
