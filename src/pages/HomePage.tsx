@@ -1,9 +1,13 @@
 import { Link } from "react-router-dom";
+import { WatchIcon } from "../icons/WatchIcon";
 
 export function HomePage() {
   return (
     <div className="h-screen w-full bg-neutral-950 text-white flex flex-col items-center justify-center px-6">
       <div className="max-w-md w-full text-center">
+        <div className="justify-end">
+            <WatchIcon/>
+        </div>
         <h1 className="text-3xl font-bold mb-3">
           Watch together, perfectly in sync
         </h1>
