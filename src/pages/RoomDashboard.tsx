@@ -166,7 +166,13 @@ export function RoomDashboard() {
         alert(data.payload.message);
         navigate("/join");
       }
+      if (data.event === "error") {
+        alert(data.payload.message);
+        navigate("/join");
+      }
+
     };
+      
   }, [roomId, navigate, myUserId]);
 
   function sendPlaybackEvent(event: "play" | "pause") {
