@@ -1,4 +1,4 @@
-export function JoinRoom(){
+export function RoomDashboard(){
 
 
     return <div>
