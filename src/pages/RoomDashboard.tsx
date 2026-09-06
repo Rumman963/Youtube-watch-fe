@@ -28,9 +28,6 @@ export function RoomDashboard() {
   useEffect(() => {
     let socket = getSocket();
 
-    // Only reconnect + rejoin if there's genuinely no active socket
-    // (e.g. the user refreshed the page and lost the in-memory connection
-    // and the state we passed via navigate() is also gone)
     if (!socket) {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -67,8 +64,14 @@ export function RoomDashboard() {
         setPlayState(data.payload.playState);
       }
 
+      // When a role changes, the backend also tells US our own
+      // new role if we're the one who got promoted/demoted, so
+      // we check for that here and update myRole too
       if (data.event === "role_assigned") {
         setParticipants(data.payload.participants);
+        if (data.payload.userId === myUserId) {
+          setMyRole(data.payload.role);
+        }
       }
 
       if (data.event === "participant_removed") {
@@ -80,7 +83,7 @@ export function RoomDashboard() {
         navigate("/join");
       }
     };
-  }, [roomId, navigate]);
+  }, [roomId, navigate, myUserId]);
 
   function sendPlaybackEvent(event: "play" | "pause") {
     const socket = getSocket();
@@ -88,7 +91,38 @@ export function RoomDashboard() {
     socket.send(JSON.stringify({ event, payload: {} }));
   }
 
+  // Toggle between moderator and participant.
+  // Only the host can call this — the button that triggers it
+  // is only shown to the host anyway, but the backend also
+  // checks this itself as a safety net.
+  function sendAssignRole(userId: string, currentRole: "host" | "moderator" | "participant") {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const newRole = currentRole === "moderator" ? "participant" : "moderator";
+
+    socket.send(
+      JSON.stringify({
+        event: "assign_role",
+        payload: { userId, role: newRole },
+      })
+    );
+  }
+
+  function sendRemoveParticipant(userId: string) {
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.send(
+      JSON.stringify({
+        event: "remove_participant",
+        payload: { userId },
+      })
+    );
+  }
+
   const canControlPlayback = myRole === "host" || myRole === "moderator";
+  const isHost = myRole === "host";
 
   return (
     <div className="min-h-screen w-full bg-neutral-950 text-white p-6">
@@ -137,26 +171,47 @@ export function RoomDashboard() {
             {participants.map((p) => (
               <div
                 key={p.userId}
-                className="flex items-center justify-between px-3 py-2 rounded-lg bg-neutral-950"
+                className="flex flex-col gap-2 px-3 py-2 rounded-lg bg-neutral-950"
               >
-                <span className="text-sm">
-                  {p.username}
-                  {p.userId === myUserId && (
-                    <span className="text-neutral-500"> (you)</span>
-                  )}
-                </span>
-                <span
-                  className={
-                    "text-xs px-2 py-1 rounded-full " +
-                    (p.role === "host"
-                      ? "bg-amber-900 text-amber-400"
-                      : p.role === "moderator"
-                      ? "bg-blue-900 text-blue-400"
-                      : "bg-neutral-800 text-neutral-400")
-                  }
-                >
-                  {p.role}
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">
+                    {p.username}
+                    {p.userId === myUserId && (
+                      <span className="text-neutral-500"> (you)</span>
+                    )}
+                  </span>
+                  <span
+                    className={
+                      "text-xs px-2 py-1 rounded-full " +
+                      (p.role === "host"
+                        ? "bg-amber-900 text-amber-400"
+                        : p.role === "moderator"
+                        ? "bg-blue-900 text-blue-400"
+                        : "bg-neutral-800 text-neutral-400")
+                    }
+                  >
+                    {p.role}
+                  </span>
+                </div>
+
+                {/* Host-only controls, hidden for everyone else
+                    and never shown on the host's own row */}
+                {isHost && p.userId !== myUserId && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => sendAssignRole(p.userId, p.role)}
+                      className="text-xs px-2 py-1 rounded-md border border-neutral-700 hover:border-neutral-500"
+                    >
+                      {p.role === "moderator" ? "Demote" : "Make moderator"}
+                    </button>
+                    <button
+                      onClick={() => sendRemoveParticipant(p.userId)}
+                      className="text-xs px-2 py-1 rounded-md border border-red-900 text-red-500 hover:border-red-500"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
