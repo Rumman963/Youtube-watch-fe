@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { connectSocket, getSocket } from "../socket";
+import { extractYouTubeId } from "../utils/youtube";
 
 interface Participant {
   userId: string;
@@ -24,6 +25,67 @@ export function RoomDashboard() {
     initialData?.role ?? "participant"
   );
   const [playState, setPlayState] = useState<"playing" | "paused">("paused");
+  const [videoUrlInput, setVideoUrlInput] = useState("");
+
+  const playerRef = useRef<any>(null);
+  const currentVideoIdRef = useRef<string>("");
+  const playerReadyRef = useRef(false);
+  const pendingSyncRef = useRef<any>(null);
+
+  // Loads the YouTube IFrame API script once, then creates the player
+  useEffect(() => {
+    // Prevent creating a second player if this effect runs twice
+    // (React Strict Mode does this in development)
+    if (playerRef.current) return;
+
+    function applySync(payload: any) {
+      const player = playerRef.current;
+      if (!player) return;
+
+      if (payload.videoId && payload.videoId !== currentVideoIdRef.current) {
+        currentVideoIdRef.current = payload.videoId;
+        player.loadVideoById(payload.videoId);
+      }
+
+      if (typeof payload.currentTime === "number") {
+        player.seekTo(payload.currentTime, true);
+      }
+
+      if (payload.playState === "playing") {
+        player.playVideo();
+      } else {
+        player.pauseVideo();
+      }
+    }
+
+    function createPlayer() {
+      playerRef.current = new (window as any).YT.Player("youtube-player", {
+        height: "100%",
+        width: "100%",
+        videoId: "",
+        events: {
+          onReady: () => {
+            console.log("YouTube player ready");
+            playerReadyRef.current = true;
+
+            if (pendingSyncRef.current) {
+              applySync(pendingSyncRef.current);
+              pendingSyncRef.current = null;
+            }
+          },
+        },
+      });
+    }
+
+    if ((window as any).YT && (window as any).YT.Player) {
+      createPlayer();
+    } else {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.body.appendChild(tag);
+      (window as any).onYouTubeIframeAPIReady = createPlayer;
+    }
+  }, []);
 
   useEffect(() => {
     let socket = getSocket();
@@ -62,11 +124,33 @@ export function RoomDashboard() {
 
       if (data.event === "sync_state") {
         setPlayState(data.payload.playState);
+
+        if (!playerReadyRef.current) {
+          // Player isn't ready yet — remember this and apply it
+          // once onReady fires
+          pendingSyncRef.current = data.payload;
+          return;
+        }
+
+        const player = playerRef.current;
+        if (!player) return;
+
+        if (data.payload.videoId && data.payload.videoId !== currentVideoIdRef.current) {
+          currentVideoIdRef.current = data.payload.videoId;
+          player.loadVideoById(data.payload.videoId);
+        }
+
+        if (typeof data.payload.currentTime === "number") {
+          player.seekTo(data.payload.currentTime, true);
+        }
+
+        if (data.payload.playState === "playing") {
+          player.playVideo();
+        } else {
+          player.pauseVideo();
+        }
       }
 
-      // When a role changes, the backend also tells US our own
-      // new role if we're the one who got promoted/demoted, so
-      // we check for that here and update myRole too
       if (data.event === "role_assigned") {
         setParticipants(data.payload.participants);
         if (data.payload.userId === myUserId) {
@@ -91,10 +175,36 @@ export function RoomDashboard() {
     socket.send(JSON.stringify({ event, payload: {} }));
   }
 
-  // Toggle between moderator and participant.
-  // Only the host can call this — the button that triggers it
-  // is only shown to the host anyway, but the backend also
-  // checks this itself as a safety net.
+function sendChangeVideo() {
+  const videoId = extractYouTubeId(videoUrlInput);
+
+  if (!videoId) {
+    alert("Couldn't find a video ID in that link. Paste a normal YouTube URL.");
+    return;
+  }
+
+  const socket = getSocket();
+  if (!socket) return;
+
+  socket.send(
+    JSON.stringify({
+      event: "change_video",
+      payload: { videoId },
+    })
+  );
+
+  // Auto-play once the video loads, so it doesn't look
+  // like nothing happened
+  socket.send(
+    JSON.stringify({
+      event: "play",
+      payload: {},
+    })
+  );
+
+  setVideoUrlInput("");
+}
+
   function sendAssignRole(userId: string, currentRole: "host" | "moderator" | "participant") {
     const socket = getSocket();
     if (!socket) return;
@@ -135,9 +245,27 @@ export function RoomDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          <div className="aspect-video bg-neutral-900 rounded-lg flex items-center justify-center border border-neutral-800">
-            <span className="text-neutral-500">Video player goes here</span>
+          <div className="aspect-video bg-neutral-900 rounded-lg overflow-hidden border border-neutral-800">
+            <div id="youtube-player" className="w-full h-full" />
           </div>
+
+          {isHost && (
+            <div className="flex gap-2 mt-4">
+              <input
+                type="text"
+                placeholder="Paste a YouTube link"
+                value={videoUrlInput}
+                onChange={(e) => setVideoUrlInput(e.target.value)}
+                className="flex-1 px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-700 outline-none text-sm"
+              />
+              <button
+                onClick={sendChangeVideo}
+                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 font-medium text-sm"
+              >
+                Load
+              </button>
+            </div>
+          )}
 
           <div className="flex gap-3 mt-4">
             <button
@@ -194,8 +322,6 @@ export function RoomDashboard() {
                   </span>
                 </div>
 
-                {/* Host-only controls, hidden for everyone else
-                    and never shown on the host's own row */}
                 {isHost && p.userId !== myUserId && (
                   <div className="flex gap-2">
                     <button
