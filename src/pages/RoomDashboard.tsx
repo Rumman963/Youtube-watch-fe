@@ -32,11 +32,10 @@ export function RoomDashboard() {
   const playerReadyRef = useRef(false);
   const pendingSyncRef = useRef<any>(null);
 
-  // Loads the YouTube IFrame API script once, then creates the player
+
   useEffect(() => {
-    // Prevent creating a second player if this effect runs twice
-    // (React Strict Mode does this in development)
-    if (playerRef.current) return;
+   
+    if (playerRef.current) return; // strict mode double-fires this
 
     function applySync(payload: any) {
       const player = playerRef.current;
@@ -126,9 +125,7 @@ export function RoomDashboard() {
         setPlayState(data.payload.playState);
 
         if (!playerReadyRef.current) {
-          // Player isn't ready yet — remember this and apply it
-          // once onReady fires
-          pendingSyncRef.current = data.payload;
+          pendingSyncRef.current = data.payload;  // apply once player's ready
           return;
         }
 
@@ -199,8 +196,6 @@ function sendChangeVideo() {
     })
   );
 
-  // Auto-play once the video loads, so it doesn't look
-  // like nothing happened
   socket.send(
     JSON.stringify({
       event: "play",
