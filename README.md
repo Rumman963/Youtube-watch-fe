@@ -13,7 +13,7 @@ Demo — Live Sync & Host Controls
 
 Two separate browser sessions in the same room, showing identical playback state, participant list, and roles updating in real time with no manual refresh. The Host also promotes a participant to Moderator and removes a participant — both windows update live from a single action.
 
-https://github.com/user-attachments/assets/xxxxxxxxxxxx
+![Live sync and host controls demo](./screenshots/Demo.gif)
 
 
 ---
