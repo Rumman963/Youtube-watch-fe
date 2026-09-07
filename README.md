@@ -48,7 +48,7 @@ Each screen below is paired with what it's actually demonstrating, not just what
 
 ### Homepage
 Landing page with the two entry points — create an account or sign in.
-![Homepage](./screenshots/homepage.png)
+![Homepage](./screenshots/Hompage.png)
 
 ### Create Account
 Signup form, wired to the backend's `POST /signup`. Shows inline error handling if the request fails.
