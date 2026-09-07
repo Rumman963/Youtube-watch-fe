@@ -70,9 +70,14 @@ The logged-in lobby — create a brand new room, or join an existing one by code
 The Host sees full playback controls and host-only actions (promote/demote, remove) next to every other participant.
 ![Room dashboard as host](./screenshots/roomdashboard.png)
 
+### Enter Code in Join Room
+The Second user who create account successfully if the host share his code to this user then the seconduser join easily by entring the code for that room.
+![Participant Enter Code to Join Room](./screenshots/codenter.png)
+
+
 ### Room Dashboard — as Participant
 The same room, viewed from a second account. Playback controls are disabled and a permission message is shown — proving the frontend actually reflects the backend's role-based permissions, not just hiding buttons cosmetically.
-![Room dashboard as participant](./screenshots/dashboard-participant.png)
+![Room dashboard as participant](./screenshots/SecondParticipant.png)
 
 ### Live Sync — Two Windows Side by Side
 Two separate browser sessions in the same room, showing identical playback state, participant list, and roles updating in real time with no manual refresh.
