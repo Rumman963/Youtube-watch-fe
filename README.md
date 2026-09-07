@@ -64,11 +64,11 @@ Signin form, wired to `POST /signin`. On success, the returned JWT is stored and
 
 ### Join a Watch Party
 The logged-in lobby — create a brand new room, or join an existing one by code. Both paths go through the same WebSocket `join_room` event.
-![Join a watch party](./screenshots/joinroom.png)
+![Join a watch party](./screenshots/createroom.png)
 
 ### Room Dashboard — as Host
 The Host sees full playback controls and host-only actions (promote/demote, remove) next to every other participant.
-![Room dashboard as host](./screenshots/dashboard-host.png)
+![Room dashboard as host](./screenshots/roomdashboard.png)
 
 ### Room Dashboard — as Participant
 The same room, viewed from a second account. Playback controls are disabled and a permission message is shown — proving the frontend actually reflects the backend's role-based permissions, not just hiding buttons cosmetically.
