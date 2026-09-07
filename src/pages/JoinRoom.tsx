@@ -1,13 +1,19 @@
 import { useEffect, useState, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { connectSocket, getSocket } from "../socket";
-import { closeSocket } from "../socket";
+import { connectSocket, getSocket, closeSocket } from "../socket";
+import { WatchIcon } from "../icons/WatchIcon";
 
 export function JoinRoom() {
   const [roomCode, setRoomCode] = useState("");
   const [error, setError] = useState("");
   const [connected, setConnected] = useState(false);
+  const [isWiggling, setIsWiggling] = useState(false);
   const navigate = useNavigate();
+
+  function handleIconClick() {
+    setIsWiggling(true);
+    setTimeout(() => setIsWiggling(false), 400);
+  }
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -19,57 +25,23 @@ export function JoinRoom() {
 
     const socket = connectSocket(token);
 
-    // Fires once the connection is actually open
     socket.onopen = () => {
       setConnected(true);
     };
 
-    // Fires whenever the server sends us a message
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
 
       if (data.event === "room_joined") {
-      const roomId = data.payload.roomId;
-      navigate(`/room/${roomId}`, {
-
-      state: {
-      userId: data.payload.userId,
-      role: data.payload.role,
-      participants: data.payload.participants,
-      
-    },
-  });
-}
-      if (data.event === "room_joined") {
-  const roomId = data.payload.roomId;
-  navigate(`/room/${roomId}`, {
-    state: {
-      userId: data.payload.userId,
-      role: data.payload.role,
-      participants: data.payload.participants,
-    },
-  });
-}
-      if (data.event === "room_joined") {
-  const roomId = data.payload.roomId;
-  navigate(`/room/${roomId}`, {
-    state: {
-      userId: data.payload.userId,
-      role: data.payload.role,
-      participants: data.payload.participants,
-    },
-  });
-}
-      if (data.event === "room_joined") {
-  const roomId = data.payload.roomId;
-  navigate(`/room/${roomId}`, {
-    state: {
-      userId: data.payload.userId,
-      role: data.payload.role,
-      participants: data.payload.participants,
-    },
-  });
-}
+        const roomId = data.payload.roomId;
+        navigate(`/room/${roomId}`, {
+          state: {
+            userId: data.payload.userId,
+            role: data.payload.role,
+            participants: data.payload.participants,
+          },
+        });
+      }
 
       if (data.event === "error") {
         setError(data.payload.message);
@@ -79,15 +51,8 @@ export function JoinRoom() {
     socket.onerror = () => {
       setError("Could not connect. Please try again.");
     };
-
-    // Note: we do NOT close the socket here on cleanup,
-    // because we want it to stay open when we navigate
-    // to the room dashboard page next.
   }, [navigate]);
 
-  // Sends a join_room event. If a code is passed, we're
-  // joining an existing room as a participant. If not,
-  // the backend creates a brand new room and makes us host.
   function sendJoinRoom(e: SyntheticEvent, code?: string) {
     e.preventDefault();
     setError("");
@@ -104,19 +69,30 @@ export function JoinRoom() {
   }
 
   function handleLogout() {
-  closeSocket();
-  localStorage.removeItem("token");
-  localStorage.removeItem("username");
-  navigate("/signin");
-}
+    closeSocket();
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    navigate("/signin");
+  }
 
   return (
-    <div className="h-screen w-full bg-neutral-950 text-white flex flex-col items-center justify-center px-6">
+    <div className="relative h-screen w-full bg-neutral-950 text-white flex flex-col items-center justify-center px-6">
       <button
-    onClick={handleLogout}
-    className="absolute top-6 right-6 text-sm text-neutral-400 hover:text-white">
-      Logout
+        onClick={handleLogout}
+        className="absolute top-6 right-6 text-sm text-neutral-400 hover:text-white"
+      >
+        Logout
       </button>
+
+      <div className="flex justify-center mb-6">
+        <button
+          onClick={handleIconClick}
+          className={"cursor-pointer " + (isWiggling ? "animate-wiggle" : "")}
+        >
+          <WatchIcon/>
+        </button>
+      </div>
+
       <h1 className="text-2xl font-bold mb-6">Join a watch party</h1>
 
       {!connected && <p className="text-neutral-400 mb-4">Connecting...</p>}
@@ -149,7 +125,6 @@ export function JoinRoom() {
       </form>
 
       {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
-
     </div>
   );
 }
