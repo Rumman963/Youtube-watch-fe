@@ -91,16 +91,7 @@ The same room, viewed from a second account. Playback controls are disabled and 
 ### Responsive / Mobile View
 The layout adapts to a narrow viewport across every screen.
 
-![Mobile HomeView](./screenshots/ResponsiveHome.jpg)
-
-![Mobile SignUpView](./screenshots/ResponsiveSignUp.jpg)
-
-![Mobile SignInView](./screenshots/ResponsiveSignIn.jpg)
-
-![Mobile JoinRoomView](./screenshots/ResponsiveJoin.jpg)
-
-![Mobile DashboardRoomView](./screenshots/ResponsiveDashboard.jpg)
-
+![Mobile OverView](./screenshots/MobileOvervier.png)
 ---
 
 ## Architecture Notes
