@@ -52,13 +52,13 @@ Landing page with the two entry points — create an account or sign in.
 
 ### Create Account
 Signup form, wired to the backend's `POST /signup`. Shows inline error handling if the request fails.
-![Create account](./screenshots/signup.png)
+![Create account](./screenshots/Signup.png)
 
 <!-- Optional: if you have a screenshot of the duplicate-username error showing on this page, add it here the same way the backend README shows its rejection case -->
 
 ### Sign In
 Signin form, wired to `POST /signin`. On success, the returned JWT is stored and the user is sent to the room lobby.
-![Sign in](./screenshots/signin.png)
+![Sign in](./screenshots/SignIn.png)
 
 <!-- Optional: wrong-password error screenshot here -->
 
