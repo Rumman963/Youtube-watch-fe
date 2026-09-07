@@ -79,13 +79,6 @@ The Second user who create account successfully if the host share his code to th
 The same room, viewed from a second account. Playback controls are disabled and a permission message is shown — proving the frontend actually reflects the backend's role-based permissions, not just hiding buttons cosmetically.
 ![Room dashboard as participant](./screenshots/SecondParticipant.png)
 
-### Live Sync — Two Windows Side by Side
-Two separate browser sessions in the same room, showing identical playback state, participant list, and roles updating in real time with no manual refresh.
-![Two windows in sync](./screenshots/sync-side-by-side.png)
-
-### Host Controls in Action
-The Host promotes a participant to Moderator / removes a participant — both windows update live from a single action.
-![Host controls in action](./screenshots/host-controls.png)
 
 ### Responsive / Mobile View
 The layout adapts to a narrow viewport.
