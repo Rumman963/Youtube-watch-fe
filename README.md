@@ -4,9 +4,9 @@ React + TypeScript frontend for a real-time synchronized YouTube watch party. Le
 
 Paired with a WebSocket + Express backend — see the backend repo for the server-side implementation and test evidence.
 
-**Live frontend:** https://youtube-watch-fe.vercel.app/
-**Live backend:** https://backend-youtube-watch.onrender.com
-**Backend repo :** https://github.com/Rumman963/Backend-Youtube-watch
+### **Live frontend:** https://youtube-watch-fe.vercel.app/
+### **Live backend:** https://backend-youtube-watch.onrender.com
+### **Backend repo :** https://github.com/Rumman963/Backend-Youtube-watch
 
 ---
 
